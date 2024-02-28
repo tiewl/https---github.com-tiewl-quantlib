@@ -16,7 +16,15 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # the application crashes without emitting any logs due to buffering.
 ENV PYTHONUNBUFFERED=1
 
+
+
 WORKDIR /app
+
+COPY dask.yaml /app/dask.yaml
+COPY .kube/config /app/config
+
+# tell where is kube config
+ENV KUBECONFIG=/app/config
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
@@ -36,7 +44,7 @@ RUN adduser \
 # into this layer.
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
-    python -m pip install -r requirements.txt
+    python -m pip install --no-cache-dir -r requirements.txt
 
 # Switch to the non-privileged user to run the application.
 USER appuser
@@ -47,5 +55,5 @@ COPY . .
 # Expose the port that the application listens on.
 EXPOSE 8000
 
-# Run the application.
-CMD python implied-vols-distributed --bind=0.0.0.0:8000
+# Run the command to start uvicorn
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,0 +1,5 @@
+QuantLib==1.31.1
+dask
+dask_kubernetes
+fastapi
+uvicorn[standard]
